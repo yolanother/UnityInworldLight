@@ -46,18 +46,16 @@ namespace Inworld
                     transcription += text;
                     SendMessage("OnSpeak", text, SendMessageOptions.DontRequireReceiver);
                     InworldEvents.OnSpeak.Invoke(text);
-                    if (response.IsInteractionEnd())
-                    {
-                        InworldEvents.OnFullTranscription.Invoke(transcription);
+                    SendMessage("OnPartialTranscription", transcription, SendMessageOptions.DontRequireReceiver);
+                    InworldEvents.OnPartialTranscription.Invoke(transcription);
+                }
+                
+                if (response.IsInteractionEnd())
+                {
+                    InworldEvents.OnFullTranscription.Invoke(transcription);
                         
-                        SendMessage("OnInteractionEnd", interactionId, SendMessageOptions.DontRequireReceiver);
-                        InworldEvents.OnInteractionEnd.Invoke(interactionId);
-                    }
-                    else
-                    {
-                        SendMessage("OnPartialTranscription", transcription, SendMessageOptions.DontRequireReceiver);
-                        InworldEvents.OnPartialTranscription.Invoke(transcription);
-                    }
+                    SendMessage("OnInteractionEnd", interactionId, SendMessageOptions.DontRequireReceiver);
+                    InworldEvents.OnInteractionEnd.Invoke(interactionId);
                 }
 
                 SendMessage("OnResponse", response, SendMessageOptions.DontRequireReceiver);

@@ -15,11 +15,13 @@ namespace DefaultNamespace.EventHandlers
         public void OnPartialTranscription(string transcription)
         {
             lastTranscription = transcription;
+            Debug.Log("Partial transcription: " + transcription);
         }
         
         public void OnFullTranscription(string transcription)
         {
             lastTranscription = transcription;
+            Debug.Log("Full transcription: " + transcription);
         }
         
         public void OnSpeak(string text)
