@@ -24,6 +24,8 @@ namespace Inworld
         private InworldRequest _inworldRequest;
         private string _session;
 
+        public string Session => _session;
+
         public InworldRequest InworldRequest
         {
             get
@@ -56,17 +58,27 @@ namespace Inworld
         public void StartSession()
         {
             if(!string.IsNullOrEmpty(_session)) StartSession(_session);
-            else _inworldRequest.StartSession((result) => _session = result.GetSessionId());
+            else InworldRequest.StartSession((result) =>
+            {
+                _session = result.GetSessionId();
+                InworldRequest.sessionId = _session;
+            });
         }
         
         public void StartSession(string sessionId)
         {
-            _inworldRequest.StartSession(sessionId, (result) => _session = result.GetSessionId());
+            InworldRequest.sessionId = sessionId;
+            InworldRequest.StartSession(sessionId, (result) =>
+            {
+                _session = result.GetSessionId();
+                InworldRequest.sessionId = _session;
+            });
         }
 
         public void EndSession()
         {
-            _inworldRequest.EndSession();
+            InworldRequest.sessionId = null;
+            InworldRequest.EndSession();
         }
 
         public void SendText(string text)
@@ -76,6 +88,8 @@ namespace Inworld
 
         public void SendText(string text, Action<JSONNode> onComplete)
         {
+            if (string.IsNullOrEmpty(text)) return;
+            
             string transcription = "";
             var interactionId = Guid.NewGuid().ToString();
             SendMessage("OnInteractionStart", interactionId, SendMessageOptions.DontRequireReceiver);
@@ -145,6 +159,7 @@ namespace Inworld
                 {
                     _inworldInteraction.SendText(_text);
                 }
+                GUILayout.Label(_inworldInteraction.Session, EditorStyles.miniLabel);
             }
         }
     }

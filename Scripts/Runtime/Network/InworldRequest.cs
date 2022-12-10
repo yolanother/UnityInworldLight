@@ -12,7 +12,22 @@ namespace Inworld
         private InworldServerConfig _serverConfig;
         private InworldConfig _config;
         private InworldInteractionPath _interactionPath;
-        private string _clientId;
+        public string sessionId;
+        
+        private static string _clientId;
+
+        public static string ClientId
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_clientId))
+                {
+                    _clientId = Guid.NewGuid().ToString();
+                }
+
+                return _clientId;
+            }
+        }
         
         public InworldRequest(InworldServerConfig serverConfig, InworldConfig config, InworldInteractionPath interactionPath)
         {
@@ -32,7 +47,11 @@ namespace Inworld
         {
             if (!queryParameters.ContainsKey("clientId"))
             {
-                queryParameters.Add("clientId", _clientId);
+                queryParameters.Add("clientId", ClientId);
+            }
+            if(!string.IsNullOrEmpty(sessionId) && !queryParameters.ContainsKey("sessionId"))
+            {
+                queryParameters.Add("sessionId", sessionId);
             }
             UriBuilder uriBuilder = new UriBuilder(_serverConfig.scheme, _serverConfig.host, _serverConfig.port, endpoint);
             uriBuilder.Query = CreateQueryString(queryParameters);
