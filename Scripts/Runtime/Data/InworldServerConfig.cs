@@ -1,9 +1,11 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Inworld.Data
 {
     [CreateAssetMenu(fileName = "InworldServerConfig", menuName = "Inworld Lite/Server Config", order = 0)]
+    [Serializable]
     public class InworldServerConfig : ScriptableObject
     {
         [Header("Server")]

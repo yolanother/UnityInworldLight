@@ -33,6 +33,11 @@ namespace Inworld
 
         public void SendText(string text)
         {
+            SendText(text, null);
+        }
+
+        public void SendText(string text, Action<JSONNode> onComplete)
+        {
             string transcription = "";
             var interactionId = Guid.NewGuid().ToString();
             SendMessage("OnInteractionStart", interactionId, SendMessageOptions.DontRequireReceiver);
@@ -52,10 +57,13 @@ namespace Inworld
                 
                 if (response.IsInteractionEnd())
                 {
+                    response["text"]["text"] = transcription;
+                    response["text"]["isFinal"] = true;
                     InworldEvents.OnFullTranscription.Invoke(transcription);
                         
                     SendMessage("OnInteractionEnd", interactionId, SendMessageOptions.DontRequireReceiver);
                     InworldEvents.OnInteractionEnd.Invoke(interactionId);
+                    onComplete?.Invoke(response);
                 }
 
                 SendMessage("OnResponse", response, SendMessageOptions.DontRequireReceiver);
