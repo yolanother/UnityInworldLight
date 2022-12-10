@@ -1,5 +1,6 @@
 ﻿using System;
 using Inworld.Data;
+using UnityEditor;
 using UnityEngine;
 
 namespace Inworld
@@ -70,6 +71,19 @@ namespace Inworld
                 InworldEvents.OnResponse.Invoke(response);
             });
         }
+        
+#if UNITY_EDITOR
+        [MenuItem("GameObject/Inworld Lite/Character", false, 10)]
+        private static void CreateIntentHandler()
+        {
+            var handler = new GameObject("Character");
+            var interaction = handler.AddComponent<InworldInteraction>();
+            if (Selection.activeGameObject)
+            {
+                handler.transform.parent = Selection.activeGameObject.transform;
+            }
+        }
+#endif
     }
     
     #if UNITY_EDITOR
