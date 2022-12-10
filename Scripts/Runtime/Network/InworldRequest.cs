@@ -12,12 +12,14 @@ namespace Inworld
         private InworldServerConfig _serverConfig;
         private InworldConfig _config;
         private InworldInteractionPath _interactionPath;
+        private string _clientId;
         
         public InworldRequest(InworldServerConfig serverConfig, InworldConfig config, InworldInteractionPath interactionPath)
         {
             _serverConfig = serverConfig;
             _config = config;
             _interactionPath = interactionPath;
+            _clientId = Guid.NewGuid().ToString();
         }
         
         public static string CreateQueryString(Dictionary<string, string> parameters)
@@ -28,14 +30,21 @@ namespace Inworld
 
         public async void Get(string endpoint, Dictionary<string, string> queryParameters, Action<JSONNode> onResponse, Action<long> onError = null)
         {
+            if (!queryParameters.ContainsKey("clientId"))
+            {
+                queryParameters.Add("clientId", _clientId);
+            }
             UriBuilder uriBuilder = new UriBuilder(_serverConfig.scheme, _serverConfig.host, _serverConfig.port, endpoint);
             uriBuilder.Query = CreateQueryString(queryParameters);
             using var www = UnityWebRequest.Get(uriBuilder.Uri);
             www.SetRequestHeader("Authorization", $"Bearer {_config.key}:{_config.secret}:{_serverConfig.apikey}");
             var downloadHandler = new InworldDownloadHandler();
             www.downloadHandler = downloadHandler;
-            downloadHandler.OnResponse += onResponse;
-            
+            if (null != onResponse)
+            {
+                downloadHandler.OnResponse += onResponse;
+            }
+
             var operation = www.SendWebRequest();
             while (!operation.isDone)
             {
@@ -59,6 +68,35 @@ namespace Inworld
                 {"scene", _interactionPath.InteractionPath }
             };
             Get("message", query, onResponse, onError);
+        }
+        
+        public void StartSession(Action<JSONNode> onResponse, Action<long> onError = null)
+        {
+            var query = new Dictionary<string, string>()
+            {
+                {"scene", _interactionPath.InteractionPath }
+            };
+            Get("start-session", query, onResponse, onError);
+        }
+
+        public void StartSession(string sessionId, Action<JSONNode> onResponse, Action<long> onError = null)
+        {
+            var query = new Dictionary<string, string>()
+            {
+                {"sessionId", sessionId},
+                {"scene", _interactionPath.InteractionPath }
+            };
+            Get("start-session", query, onResponse, onError);
+        }
+        
+        public bool EndSession(Action<JSONNode> onResponse = null, Action<long> onError = null)
+        {
+            var query = new Dictionary<string, string>()
+            {
+                {"scene", _interactionPath.InteractionPath }
+            };
+            Get("end-session", query, onResponse, onError);
+            return true;
         }
     }
 }

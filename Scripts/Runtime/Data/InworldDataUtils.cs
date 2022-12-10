@@ -11,5 +11,10 @@
         {
             return response["type"].AsInt == 5 && response["control"]["type"].AsInt == 3;
         }
+
+        public static string GetSessionId(this JSONNode response)
+        {
+            return response["sessionId"];
+        }
     }
 }

@@ -11,6 +11,10 @@ namespace Inworld
         [SerializeField] private InworldInteractionPath _interactionPath;
         [SerializeField] private InworldConfig _inworldConfig;
         [SerializeField] private InworldServerConfig _inworldServerConfig;
+
+        [Header("Session")]
+        [SerializeField] private bool _startSessionOnEnable = true;
+        [SerializeField] private bool _endSessionOnDisable = true;
         
         [Header("Events")]
         [SerializeField] private InworldEvents _inworldEvents = new InworldEvents();
@@ -18,6 +22,7 @@ namespace Inworld
         public InworldEvents InworldEvents => _inworldEvents;
 
         private InworldRequest _inworldRequest;
+        private string _session;
 
         public InworldRequest InworldRequest
         {
@@ -30,6 +35,38 @@ namespace Inworld
                 
                 return _inworldRequest;
             }
+        }
+
+        private void OnEnable()
+        {
+            if (_startSessionOnEnable)
+            {
+                StartSession();
+            }
+        }
+        
+        private void OnDisable()
+        {
+            if (_endSessionOnDisable)
+            {
+                EndSession();
+            }
+        }
+
+        public void StartSession()
+        {
+            if(!string.IsNullOrEmpty(_session)) StartSession(_session);
+            else _inworldRequest.StartSession((result) => _session = result.GetSessionId());
+        }
+        
+        public void StartSession(string sessionId)
+        {
+            _inworldRequest.StartSession(sessionId, (result) => _session = result.GetSessionId());
+        }
+
+        public void EndSession()
+        {
+            _inworldRequest.EndSession();
         }
 
         public void SendText(string text)
