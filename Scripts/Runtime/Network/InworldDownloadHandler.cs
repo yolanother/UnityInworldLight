@@ -9,10 +9,17 @@ namespace Inworld
 {
     public class InworldDownloadHandler : DownloadHandlerScript
     {
+        private readonly UnityWebRequest _request;
+        private JSONNode _response;
+        
+        public  JSONNode Response => _response;
+
         public event Action<JSONNode> OnResponse;
         // Standard scripted download handler - allocates memory on each ReceiveData callback
 
-        public InworldDownloadHandler(): base() {
+        public InworldDownloadHandler(UnityWebRequest request): base()
+        {
+            _request = request;
         }
 
         public InworldDownloadHandler(byte[] buffer): base(buffer) {
@@ -34,7 +41,12 @@ namespace Inworld
             {
                 try
                 {
-                    OnResponse?.Invoke(JSON.Parse(response));
+                    _response = JSON.Parse(response);
+                    _response["responseCode"] = _request.responseCode;
+                    if (_request.responseCode == 200)
+                    {
+                        OnResponse?.Invoke(_response);
+                    }
                 }
                 catch (JsonException e)
                 {

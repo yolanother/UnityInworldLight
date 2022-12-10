@@ -86,7 +86,7 @@ namespace Inworld
             SendText(text, null);
         }
 
-        public void SendText(string text, Action<JSONNode> onComplete)
+        public void SendText(string text, Action<JSONNode> onComplete, Action<JSONNode> onError = null)
         {
             if (string.IsNullOrEmpty(text)) return;
             
@@ -120,6 +120,9 @@ namespace Inworld
 
                 SendMessage("OnResponse", response, SendMessageOptions.DontRequireReceiver);
                 InworldEvents.OnResponse.Invoke(response);
+            }, error =>
+            {
+                onError?.Invoke(error);
             });
         }
         

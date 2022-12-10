@@ -43,7 +43,7 @@ namespace Inworld
                 string.Format("{0}={1}", kvp.Key, UnityWebRequest.EscapeURL(kvp.Value))));
         }
 
-        public async void Get(string endpoint, Dictionary<string, string> queryParameters, Action<JSONNode> onResponse, Action<long> onError = null)
+        public async void Get(string endpoint, Dictionary<string, string> queryParameters, Action<JSONNode> onResponse, Action<JSONNode> onError = null)
         {
             if (!queryParameters.ContainsKey("clientId"))
             {
@@ -57,12 +57,10 @@ namespace Inworld
             uriBuilder.Query = CreateQueryString(queryParameters);
             using var www = UnityWebRequest.Get(uriBuilder.Uri);
             www.SetRequestHeader("Authorization", $"Bearer {_config.key}:{_config.secret}:{_serverConfig.apikey}");
-            var downloadHandler = new InworldDownloadHandler();
+            var downloadHandler = new InworldDownloadHandler(www);
             www.downloadHandler = downloadHandler;
-            if (null != onResponse)
-            {
-                downloadHandler.OnResponse += onResponse;
-            }
+            
+            if (null != onResponse) downloadHandler.OnResponse += onResponse;
 
             var operation = www.SendWebRequest();
             while (!operation.isDone)
@@ -70,15 +68,15 @@ namespace Inworld
                 await Task.Yield();
             }
 
-            if (www.result != UnityWebRequest.Result.Success)
+            if (www.result != UnityWebRequest.Result.Success || www.responseCode != 200)
             {
-                onError?.Invoke(www.responseCode);
+                onError?.Invoke(downloadHandler.Response);
             }
 
             downloadHandler.OnResponse -= onResponse;
         }
 
-        public void Message(string message, Action<JSONNode> onResponse, Action<long> onError = null)
+        public void Message(string message, Action<JSONNode> onResponse, Action<JSONNode> onError = null)
 
         {
             var query = new Dictionary<string, string>()
@@ -89,7 +87,7 @@ namespace Inworld
             Get(_serverConfig.message, query, onResponse, onError);
         }
         
-        public void StartSession(Action<JSONNode> onResponse, Action<long> onError = null)
+        public void StartSession(Action<JSONNode> onResponse, Action<JSONNode> onError = null)
         {
             var query = new Dictionary<string, string>()
             {
@@ -98,7 +96,7 @@ namespace Inworld
             Get(_serverConfig.startSession, query, onResponse, onError);
         }
 
-        public void StartSession(string sessionId, Action<JSONNode> onResponse, Action<long> onError = null)
+        public void StartSession(string sessionId, Action<JSONNode> onResponse, Action<JSONNode> onError = null)
         {
             var query = new Dictionary<string, string>()
             {
@@ -108,7 +106,7 @@ namespace Inworld
             Get(_serverConfig.startSession, query, onResponse, onError);
         }
         
-        public bool EndSession(Action<JSONNode> onResponse = null, Action<long> onError = null)
+        public bool EndSession(Action<JSONNode> onResponse = null, Action<JSONNode> onError = null)
         {
             var query = new Dictionary<string, string>()
             {

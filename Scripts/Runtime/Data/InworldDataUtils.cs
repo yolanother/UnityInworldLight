@@ -7,6 +7,11 @@
             return response["text"]["text"];
         }
         
+        public static string GetError(this JSONNode response)
+        {
+            return response["error"];
+        }
+        
         public static bool IsInteractionEnd(this JSONNode response)
         {
             return response["type"].AsInt == 5 && response["control"]["type"].AsInt == 3;
