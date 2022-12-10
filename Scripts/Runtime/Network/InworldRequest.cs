@@ -86,7 +86,7 @@ namespace Inworld
                 { "m", message },
                 {"scene", _interactionPath.InteractionPath }
             };
-            Get("message", query, onResponse, onError);
+            Get(_serverConfig.message, query, onResponse, onError);
         }
         
         public void StartSession(Action<JSONNode> onResponse, Action<long> onError = null)
@@ -95,7 +95,7 @@ namespace Inworld
             {
                 {"scene", _interactionPath.InteractionPath }
             };
-            Get("start-session", query, onResponse, onError);
+            Get(_serverConfig.startSession, query, onResponse, onError);
         }
 
         public void StartSession(string sessionId, Action<JSONNode> onResponse, Action<long> onError = null)
@@ -105,7 +105,7 @@ namespace Inworld
                 {"sessionId", sessionId},
                 {"scene", _interactionPath.InteractionPath }
             };
-            Get("start-session", query, onResponse, onError);
+            Get(_serverConfig.startSession, query, onResponse, onError);
         }
         
         public bool EndSession(Action<JSONNode> onResponse = null, Action<long> onError = null)
@@ -114,7 +114,7 @@ namespace Inworld
             {
                 {"scene", _interactionPath.InteractionPath }
             };
-            Get("end-session", query, onResponse, onError);
+            Get(_serverConfig.endSession, query, onResponse, onError);
             return true;
         }
     }

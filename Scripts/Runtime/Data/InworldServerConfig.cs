@@ -16,6 +16,8 @@ namespace Inworld.Data
         
         [Header("Endpoints")]
         public string message = "message";
+        public string startSession = "start-session";
+        public string endSession = "end-session";
 
         public string GetEndpoint(Endpoints endpoint)
         {
@@ -42,14 +44,51 @@ namespace Inworld.Data
         {
             InworldServerConfig config = (InworldServerConfig) target;
             EditorGUILayout.LabelField("Server", EditorStyles.boldLabel);
-            config.scheme = EditorGUILayout.TextField("Scheme", config.scheme);
-            config.host = EditorGUILayout.TextField("Host", config.host);
-            config.port = EditorGUILayout.IntField("Port", config.port);
-            config.apikey = EditorGUILayout.PasswordField("API Key", config.apikey);
+            var scheme = EditorGUILayout.TextField("Scheme", config.scheme);
+            if (scheme != config.scheme)
+            {
+                config.scheme = scheme;
+                EditorUtility.SetDirty(config);
+            }
+            var host = EditorGUILayout.TextField("Host", config.host);
+            if (host != config.host)
+            {
+                config.host = host;
+                EditorUtility.SetDirty(config);
+            }
+            var port = EditorGUILayout.IntField("Port", config.port);
+            if (port != config.port)
+            {
+                config.port = port;
+                EditorUtility.SetDirty(config);
+            }
+            var apikey = EditorGUILayout.PasswordField("API Key", config.apikey);
+            if (apikey != config.apikey)
+            {
+                config.apikey = apikey;
+                EditorUtility.SetDirty(config);
+            }
     
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Endpoints", EditorStyles.boldLabel);
-            config.message = EditorGUILayout.TextField("Message", config.message);
+            var message = EditorGUILayout.TextField("Message", config.message);
+            if (message != config.message)
+            {
+                config.message = message;
+                EditorUtility.SetDirty(config);
+            }
+            var startSession = EditorGUILayout.TextField("Start Session", config.startSession);
+            if (startSession != config.startSession)
+            {
+                config.startSession = startSession;
+                EditorUtility.SetDirty(config);
+            }
+            var endSession = EditorGUILayout.TextField("End Session", config.endSession);
+            if (endSession != config.endSession)
+            {
+                config.endSession = endSession;
+                EditorUtility.SetDirty(config);
+            }
         }
     }
     #endif
