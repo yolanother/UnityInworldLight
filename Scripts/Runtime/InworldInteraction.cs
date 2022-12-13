@@ -62,6 +62,7 @@ namespace Inworld
             {
                 _session = result.GetSessionId();
                 InworldRequest.sessionId = _session;
+                InworldEvents.OnSessionStarted.Invoke();
             });
         }
         
@@ -92,12 +93,18 @@ namespace Inworld
             
             string transcription = "";
             var interactionId = Guid.NewGuid().ToString();
+            var responded = false;
             SendMessage("OnInteractionStart", interactionId, SendMessageOptions.DontRequireReceiver);
             InworldEvents.OnInteractionStart.Invoke(interactionId);
             InworldRequest.Message(text, (response) =>
             {
                 if (response.HasKey("text"))
                 {
+                    if (!responded)
+                    {
+                        responded = false;
+                        InworldEvents.OnFirstResponse.Invoke(response);
+                    }
                     var text = response["text"]["text"].Value;
                     if (transcription.Length > 0) transcription += "\n";
                     transcription += text;

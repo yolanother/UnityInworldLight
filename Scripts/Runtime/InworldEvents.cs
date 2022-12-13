@@ -13,5 +13,7 @@ namespace Inworld
         public UnityEvent<string> OnFullTranscription;
         public UnityEvent<string> OnInteractionStart;
         public UnityEvent<string> OnInteractionEnd;
+        public UnityEvent OnSessionStarted;
+        public UnityEvent<JSONNode> OnFirstResponse;
     }
 }
