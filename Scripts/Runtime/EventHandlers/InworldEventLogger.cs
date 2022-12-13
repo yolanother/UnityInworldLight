@@ -45,5 +45,15 @@ namespace DefaultNamespace.EventHandlers
             lastResponse = response.ToString();
             Debug.Log("OnResponse: " + lastResponse);
         }
+
+        public void OnSendingEvent(string eventName)
+        {
+            Debug.Log("OnSendEvent: " + eventName);
+        }
+
+        public void OnEventSent(string eventName)
+        {
+            Debug.Log("OnSentEvent: " + eventName);
+        }
     }
 }

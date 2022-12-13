@@ -76,6 +76,17 @@ namespace Inworld
             downloadHandler.OnResponse -= onResponse;
         }
 
+        public void SendEvent(string eventName, Action<JSONNode> onResponse, Action<JSONNode> onError = null)
+
+        {
+            var query = new Dictionary<string, string>()
+            {
+                { "e", eventName },
+                {"scene", _interactionPath.InteractionPath }
+            };
+            Get(_serverConfig.customEvent, query, onResponse, onError);
+        }
+
         public void Message(string message, Action<JSONNode> onResponse, Action<JSONNode> onError = null)
 
         {

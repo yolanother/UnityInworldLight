@@ -82,6 +82,23 @@ namespace Inworld
             InworldRequest.EndSession();
         }
 
+        public void SendEvent(string eventName)
+        {
+            SendEvent(eventName, null, null);
+        }
+
+        public void SendEvent(string eventName, Action<JSONNode> onComplete, Action<JSONNode> onError = null)
+        {
+            SendMessage("OnSendingEvent", eventName, SendMessageOptions.DontRequireReceiver);
+            InworldRequest.SendEvent(eventName, (result) =>
+            {
+                _session = result.GetSessionId();
+                InworldRequest.sessionId = _session;
+                onComplete?.Invoke(result);
+                SendMessage("OnEventSent", eventName, SendMessageOptions.DontRequireReceiver);
+            }, onError);
+        }
+
         public void SendText(string text)
         {
             SendText(text, null);
@@ -153,6 +170,7 @@ namespace Inworld
     {
         private InworldInteraction _inworldInteraction;
         private string _text;
+        private string _eventName;
 
         private void OnEnable()
         {
@@ -169,7 +187,18 @@ namespace Inworld
                 {
                     _inworldInteraction.SendText(_text);
                 }
+                
+                _eventName = UnityEditor.EditorGUILayout.TextField("Event Name", _eventName);
+                if (GUILayout.Button("Send Event"))
+                {
+                    _inworldInteraction.SendEvent(_eventName);
+                }
+                
+                GUILayout.Space(8);
+                
+                GUILayout.BeginVertical(EditorStyles.helpBox);
                 GUILayout.Label(_inworldInteraction.Session, EditorStyles.miniLabel);
+                GUILayout.EndVertical();
             }
         }
     }

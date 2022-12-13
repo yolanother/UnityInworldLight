@@ -16,6 +16,7 @@ namespace Inworld.Data
         
         [Header("Endpoints")]
         public string message = "message";
+        public string customEvent = "event";
         public string startSession = "start-session";
         public string endSession = "end-session";
 
