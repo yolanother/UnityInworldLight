@@ -89,6 +89,8 @@ namespace Inworld
 
         public void SendEvent(string eventName, Action<JSONNode> onComplete, Action<JSONNode> onError = null)
         {
+            if(string.IsNullOrEmpty(eventName)) return;
+            
             SendMessage("OnSendingEvent", eventName, SendMessageOptions.DontRequireReceiver);
             InworldRequest.SendEvent(eventName, (result) =>
             {
