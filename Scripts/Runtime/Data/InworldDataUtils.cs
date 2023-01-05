@@ -14,6 +14,11 @@
         
         public static bool IsInteractionEnd(this JSONNode response)
         {
+            if (!response.HasKey("type") || !response.HasKey("control") || !response["control"].HasKey("type"))
+            {
+                return false;
+            }
+
             return response["type"].AsInt == 5 && response["control"]["type"].AsInt == 3;
         }
 
