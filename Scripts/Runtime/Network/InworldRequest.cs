@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Inworld.Data;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Inworld
@@ -53,22 +55,31 @@ namespace Inworld
             {
                 queryParameters.Add("sessionId", sessionId);
             }
+            var auth = $"{_config.key}:{_config.secret}:{_serverConfig.apikey}";
             UriBuilder uriBuilder = new UriBuilder(_serverConfig.scheme, _serverConfig.host, _serverConfig.port, endpoint);
             uriBuilder.Query = CreateQueryString(queryParameters);
-            using var www = UnityWebRequest.Get(uriBuilder.Uri);
-            www.SetRequestHeader("Authorization", $"Bearer {_config.key}:{_config.secret}:{_serverConfig.apikey}");
-            var downloadHandler = new InworldDownloadHandler(www);
-            www.downloadHandler = downloadHandler;
+            #if UNITY_WEBGL
+            var body = JsonUtility.ToJson(new RequestBody() { auth = auth });
+            using var request = UnityWebRequest.Post(uriBuilder.Uri, body);
+            request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+            request.SetRequestHeader("Content-Type", "application/json");
+            #else
+            using var request = UnityWebRequest.Get(uriBuilder.Uri);
+            #endif
+            request.SetRequestHeader("Authorization", $"Bearer {auth}");
+            request.SetRequestHeader("Access-Control-Allow-Origin", "*");
+            var downloadHandler = new InworldDownloadHandler(request);
+            request.downloadHandler = downloadHandler;
             
             if (null != onResponse) downloadHandler.OnResponse += onResponse;
 
-            var operation = www.SendWebRequest();
+            var operation = request.SendWebRequest();
             while (!operation.isDone)
             {
                 await Task.Yield();
             }
 
-            if (www.result != UnityWebRequest.Result.Success || www.responseCode != 200)
+            if (request.result != UnityWebRequest.Result.Success || request.responseCode != 200)
             {
                 onError?.Invoke(downloadHandler.Response);
             }
@@ -125,6 +136,11 @@ namespace Inworld
             };
             Get(_serverConfig.endSession, query, onResponse, onError);
             return true;
+        }
+
+        private class RequestBody
+        {
+            public string auth;
         }
     }
 }

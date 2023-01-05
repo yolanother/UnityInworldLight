@@ -41,11 +41,15 @@ namespace Inworld
             {
                 try
                 {
-                    _response = JSON.Parse(response);
-                    _response["responseCode"] = _request.responseCode;
-                    if (_request.responseCode == 200)
+                    var responses = response.Split("\r\n");
+                    foreach (var r in responses)
                     {
-                        OnResponse?.Invoke(_response);
+                        _response = JSON.Parse(r);
+                        _response["responseCode"] = _request.responseCode;
+                        if (_request.responseCode == 200)
+                        {
+                            OnResponse?.Invoke(_response);
+                        }
                     }
                 }
                 catch (JsonException e)
